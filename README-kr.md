@@ -13,9 +13,7 @@
 
 해당 repo의 주 내용은 윈도우 환경에서 정상적으로 사용하기 위함입니다.
 
-특히 custom dataset을 활용을 중심으로 수정하였습니다.
-
-더불어서 pytorch등에 대한 버전문제를 수정하였습니다.
+존재하는 버전관련 이슈도 함께 수정하였습니다.
 
 ## Main Contribution
 
@@ -44,7 +42,7 @@
 
 ## Download Prerequisite
 -   Darknet파일을 받기 위해 wget을 사용할 수 없으므로 직접 url을 입력하여 가져옵니다.
--   해당 파일을 weights파일에 위치시킵니다.
+-   해당 파일을 weights 폴더에위치시킵니다.
 
 ```bash
 # darknet
@@ -55,7 +53,7 @@ https://pjreddie.com/media/files/yolov3-tiny.weights
 https://pjreddie.com/media/files/yolov3-tiny.weights
 ```
 
-## Detect
+## Quick Start
 
 ### Images
 
@@ -150,7 +148,7 @@ $ python train.py --use_custom True
 ## Detect/Test
 
 -   지금 까지 모형을 준비하여 train시키셨다면 결과를 활용할 차례입니다.
--   위의 옵션처럼 `use_custom True`를 사용하여 편하게 해당 모형을 활용할 수 있습니다.
+-   아래 옵션처럼 `use_custom True`를 사용하여 편하게 해당 모형을 활용할 수 있습니다.
 
 ```bash
 # for images

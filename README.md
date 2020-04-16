@@ -1,138 +1,156 @@
 # PyTorch-YOLOv3
-A minimal PyTorch implementation of YOLOv3, with support for training, inference and evaluation.
 
-## Installation
-##### Clone and install requirements
-    $ git clone https://github.com/eriklindernoren/PyTorch-YOLOv3
-    $ cd PyTorch-YOLOv3/
-    $ sudo pip3 install -r requirements.txt
+**This repo is revision version of Erik Linder-Norén's [repo](https://github.com/eriklindernoren/PyTorch-YOLOv3)**
 
-##### Download pretrained weights
-    $ cd weights/
-    $ bash download_weights.sh
+**xmltotxt is originated from Isabek Tashiev's [repo](https://github.com/Isabek/XmlToTxt)**
 
-##### Download COCO
-    $ cd data/
-    $ bash get_coco_dataset.sh
-    
-## Test
-Evaluates the model on COCO test.
+**As I use origin version, I got several errors and I want to share what I do to overcome**
 
-    $ python3 test.py --weights_path weights/yolov3.weights
+**If you are interested, visit origin repository above**
 
-| Model                   | mAP (min. 50 IoU) |
-| ----------------------- |:-----------------:|
-| YOLOv3 608 (paper)      | 57.9              |
-| YOLOv3 608 (this impl.) | 57.3              |
-| YOLOv3 416 (paper)      | 55.3              |
-| YOLOv3 416 (this impl.) | 55.5              |
+한국어 버전은 [여기](https://github.com/young31/PyTorch-YOLOv3/blob/master/README-kr.md)
 
-## Inference
-Uses pretrained weights to make predictions on images. Below table displays the inference times when using as inputs images scaled to 256x256. The ResNet backbone measurements are taken from the YOLOv3 paper. The Darknet-53 measurement marked shows the inference time of this implementation on my 1080ti card.
+## Purpose
 
-| Backbone                | GPU      | FPS      |
-| ----------------------- |:--------:|:--------:|
-| ResNet-101              | Titan X  | 53       |
-| ResNet-152              | Titan X  | 37       |
-| Darknet-53 (paper)      | Titan X  | 76       |
-| Darknet-53 (this impl.) | 1080ti   | 74       |
+I made this to use in Windows environment
 
-    $ python3 detect.py --image_folder data/samples/
+Some version difference issues are revised
 
-<p align="center"><img src="assets/giraffe.png" width="480"\></p>
-<p align="center"><img src="assets/dog.png" width="480"\></p>
-<p align="center"><img src="assets/traffic.png" width="480"\></p>
-<p align="center"><img src="assets/messi.png" width="480"\></p>
+## Main Contribution
 
-## Train
-```
-$ train.py [-h] [--epochs EPOCHS] [--batch_size BATCH_SIZE]
-                [--gradient_accumulations GRADIENT_ACCUMULATIONS]
-                [--model_def MODEL_DEF] [--data_config DATA_CONFIG]
-                [--pretrained_weights PRETRAINED_WEIGHTS] [--n_cpu N_CPU]
-                [--img_size IMG_SIZE]
-                [--checkpoint_interval CHECKPOINT_INTERVAL]
-                [--evaluation_interval EVALUATION_INTERVAL]
-                [--compute_map COMPUTE_MAP]
-                [--multiscale_training MULTISCALE_TRAINING]
+1.  Convert from .sh file to .py file
+    -   .sh files in config, data folder are converted for window users to use
+    -   additional file to apply above easily can be used 
+2.  In utils/logger Tensorflow version issues
+    -   tf1 version codes are converted to tf2 usage
+
+```python
+# add tf.compat.v1.disable_eager_execution()
+
+# tf.Summary => tf.compat.v1.Summary
 ```
 
-#### Example (COCO)
-To train on COCO using a Darknet-53 backend pretrained on ImageNet run: 
-```
-$ python3 train.py --data_config config/coco.data  --pretrained_weights weights/darknet53.conv.74
+3.  In utils/utils PyTorch version issue
+
+```python
+# ByteTensor => BoolTensor
 ```
 
-#### Training log
-```
----- [Epoch 7/100, Batch 7300/14658] ----
-+------------+--------------+--------------+--------------+
-| Metrics    | YOLO Layer 0 | YOLO Layer 1 | YOLO Layer 2 |
-+------------+--------------+--------------+--------------+
-| grid_size  | 16           | 32           | 64           |
-| loss       | 1.554926     | 1.446884     | 1.427585     |
-| x          | 0.028157     | 0.044483     | 0.051159     |
-| y          | 0.040524     | 0.035687     | 0.046307     |
-| w          | 0.078980     | 0.066310     | 0.027984     |
-| h          | 0.133414     | 0.094540     | 0.037121     |
-| conf       | 1.234448     | 1.165665     | 1.223495     |
-| cls        | 0.039402     | 0.040198     | 0.041520     |
-| cls_acc    | 44.44%       | 43.59%       | 32.50%       |
-| recall50   | 0.361111     | 0.384615     | 0.300000     |
-| recall75   | 0.222222     | 0.282051     | 0.300000     |
-| precision  | 0.520000     | 0.300000     | 0.070175     |
-| conf_obj   | 0.599058     | 0.622685     | 0.651472     |
-| conf_noobj | 0.003778     | 0.004039     | 0.004044     |
-+------------+--------------+--------------+--------------+
-Total Loss 4.429395
----- ETA 0:35:48.821929
+4.  Add use_custom option in detect/train/test for convenience
+    -   Not general purpose
+5.  Add video.py 
+    -   Now you can apply models with video/cam 
+
+## Download Prerequisite
+
+-   As not using wget, manually download files via enter urls
+-   Files below should be located in weights folder
+
+```bash
+# darknet
+https://pjreddie.com/media/files/darknet53.conv.74
+# yolo
+https://pjreddie.com/media/files/yolov3-tiny.weights
+# yolo-tiny
+https://pjreddie.com/media/files/yolov3-tiny.weights
 ```
 
-#### Tensorboard
-Track training progress in Tensorboard:
-* Initialize training
-* Run the command below
-* Go to http://localhost:6006/
+## Quick Start
 
+### Images
+
+-   After done above, you can use pretrained model immedeately
+-   After locate images in data/sample_images, and apply below
+
+```bash
+$ python detect.py
 ```
-$ tensorboard --logdir='logs' --port=6006
+
+-   Annotated output will be cound in output folder
+
+### Video/Cam
+
+-   This is added function
+-   Only per a video now and storing is not realized yet
+-   Enter the command below and you can see pop-up
+
+```bash
+$ python video.py
+```
+
+-   If someone wants to use own webcam, command below would be useful
+
+```bash
+$ python video.py --cam True
 ```
 
 ## Train on Custom Dataset
 
-#### Custom model
-Run the commands below to create a custom model definition, replacing `<num-classes>` with the number of classes in your dataset.
+### Prepare Dataset
 
+-   Dataset should have images and labels(annotations)
+
+#### images
+
+-   Put images in data/custom/images folder
+
+#### labels
+
+-   Put labels in data/labels folder with *.txt 
+-   If you have xml version, use xmltotxt
+
+-   Write down your datasets' labels in classes.txt and enter the command below
+
+```bash
+$ python xmltotxt.py 
 ```
-$ cd config/                                # Navigate to config dir
-$ bash create_custom_model.sh <num-classes> # Will create custom model 'yolov3-custom.cfg'
+
+-   Outputs can be found in output folder and copy and paste them
+-   Write down your classes in custom/classes.names
+    -   **Should have one empty space**
+
+### Build Config
+
+-   I merge some functions
+-   After preparing datsets properly, enter the code below
+    -   It will make yolov3-custom.py and trian.txt, valid.txt for training
+
+```bash
+$ python build_custom.py -n <number of classes>
 ```
 
-#### Classes
-Add class names to `data/custom/classes.names`. This file should have one row per class name.
+## Train
 
-#### Image Folder
-Move the images of your dataset to `data/custom/images/`.
+-   Only left thing is training model
 
-#### Annotation Folder
-Move your annotations to `data/custom/labels/`. The dataloader expects that the annotation file corresponding to the image `data/custom/images/train.jpg` has the path `data/custom/labels/train.txt`. Each row in the annotation file should define one bounding box, using the syntax `label_idx x_center y_center width height`. The coordinates should be scaled `[0, 1]`, and the `label_idx` should be zero-indexed and correspond to the row number of the class name in `data/custom/classes.names`.
-
-#### Define Train and Validation Sets
-In `data/custom/train.txt` and `data/custom/valid.txt`, add paths to images that will be used as train and validation data respectively.
-
-#### Train
-To train on the custom dataset run:
-
-```
+```bash
 $ python3 train.py --model_def config/yolov3-custom.cfg --data_config config/custom.data
 ```
 
-Add `--pretrained_weights weights/darknet53.conv.74` to train using a backend pretrained on ImageNet.
+-   You can add  `--pretrained_weights weights/darknet53.conv.74` to start with pretrained model
+-   Command below acts same except `model_def`
+    -   It use the latest training model in checkpoint folder
 
+```bash
+$ python train.py --use_custom True
+```
+
+## Detect/Test
+
+-   After training, detect images and videos
+    -   `__use_custom` option will use the latest trained model
+
+```bash
+# for images
+$ python detect.py --use_custom True
+# for video/cam
+$ python video.py --use_custom True --cam True
+```
 
 ## Credit
 
 ### YOLOv3: An Incremental Improvement
+
 _Joseph Redmon, Ali Farhadi_ <br>
 
 **Abstract** <br>
