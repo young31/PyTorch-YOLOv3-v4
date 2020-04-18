@@ -16,3 +16,5 @@ workingspace/
 logs/
 .vscode/
 .ipynb_checkpoints/
+*.txt
+*.xml
