@@ -15,4 +15,5 @@ if __name__=='__main__':
 
     a=f.read()
     a = a.replace('custom_num', str(custom_num))
+    a = a.replace('$NUM_CLASSES', str(custom_num))
     tar.write(a)

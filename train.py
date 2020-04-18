@@ -35,6 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_interval", type=int, default=1, help="interval between saving model weights")
     parser.add_argument("--evaluation_interval", type=int, default=1, help="interval evaluations on validation set")
     parser.add_argument("--compute_map", default=False, help="if True computes mAP every tenth batch")
+    parser.add_argument("--multiscale_training", default=True, help="allow for multi-scale training")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     opt = parser.parse_args()
 
