@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_interval", type=int, default=1, help="interval between saving model weights")
     parser.add_argument("--evaluation_interval", type=int, default=1, help="interval evaluations on validation set")
     parser.add_argument("--compute_map", default=False, help="if True computes mAP every tenth batch")
-    parser.add_argument("--multiscale_training", default=True, help="allow for multi-scale training")
+    parser.add_argument("--multiscale_training", default=False, help="allow for multi-scale training")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     opt = parser.parse_args()
 
@@ -43,8 +43,10 @@ if __name__ == "__main__":
     if opt.use_custom:
         opt.model_def = 'config/yolov3-custom.cfg'
         ls = sorted(os.listdir('./checkpoints'))
-        opt.weights_path = 'checkpoints/'+ls[-1]
-        opt.class_path = 'data.custom/classes.names'
+        if len(ls)>0:
+            opt.pretrained_weights = 'checkpoints/'+ls[-1]
+        opt.class_path = 'data/custom/classes.names'
+        opt.data_config = 'config/custom.data'
 
     logger = Logger("logs")
 
@@ -77,7 +79,7 @@ if __name__ == "__main__":
         batch_size=opt.batch_size,
         shuffle=True,
         num_workers=0,
-        # pin_memory=True,
+        pin_memory=True,
         collate_fn=dataset.collate_fn,
     )
 
@@ -161,10 +163,10 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.5,
+                conf_thres=0.001,
                 nms_thres=0.5,
                 img_size=opt.img_size,
-                batch_size=8,
+                batch_size=opt.batch_size,
             )
             evaluation_metrics = [
                 ("val_precision", precision.mean()),

@@ -76,8 +76,9 @@ if __name__ == "__main__":
     if opt.use_custom:
         opt.model_def = 'config/yolov3-custom.cfg'
         ls = sorted(os.listdir('./checkpoints'))
-        opt.weights_path = 'checkpoints/'+ls[-1]
-        opt.class_path = 'data.custom/classes.names'
+        if len(ls) > 0:
+            opt.weights_path = 'checkpoints/'+ls[-1]
+        opt.class_path = 'data/custom/classes.names'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         conf_thres=opt.conf_thres,
         nms_thres=opt.nms_thres,
         img_size=opt.img_size,
-        batch_size=8,
+        batch_size=opt.batch_size,
     )
 
     print("Average Precisions:")

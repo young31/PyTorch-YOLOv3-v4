@@ -43,7 +43,7 @@ if __name__ == "__main__":
         ls = sorted(os.listdir('./checkpoints'))
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]
-        opt.class_path = 'data.custom/classes.names'
+        opt.class_path = 'data/custom/classes.names'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
