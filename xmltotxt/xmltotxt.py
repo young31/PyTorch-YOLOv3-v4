@@ -8,7 +8,7 @@ from transformer import Transformer
 
 def main():
     parser = argparse.ArgumentParser(description="Formatter from ImageNet xml to Darknet text format")
-    parser.add_argument("-xml", help="Relative location of xml files directory", required=True, default='xml')
+    parser.add_argument("-xml", help="Relative location of xml files directory", default='xml')
     parser.add_argument("-out", help="Relative location of output txt files directory", default="out")
     args = parser.parse_args()
 

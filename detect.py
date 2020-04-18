@@ -44,6 +44,7 @@ if __name__ == "__main__":
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
+        print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
