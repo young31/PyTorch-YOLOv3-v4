@@ -30,7 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
     parser.add_argument("--cam", type=bool, default=False, help="use cam instead of video")
-    parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
+    parser.add_argument("--use_custom", type=bool, default=False, help="use custom trained weight")
+    parser.add_argument("--output_dir", type=str, default='output/', help="dir to stroe recorded video or snapshot")
     opt = parser.parse_args()
 
     # Use custom weight
@@ -42,6 +43,7 @@ if __name__ == "__main__":
         opt.class_path = 'data/custom/classes.names'
         
     print(opt)
+    print('###########################\n# press space to pause\n# press s to capture\n# press r to record\n# press t to finish recording\n###########################')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
@@ -68,6 +70,9 @@ if __name__ == "__main__":
     else:
         cap = cv.VideoCapture(opt.video_path)
 
+    fourcc = cv.VideoWriter_fourcc(*'DIVX')
+    record = False
+    
     # Real-time detection
     while cap.isOpened():
         ret, frame = cap.read()
@@ -101,11 +106,31 @@ if __name__ == "__main__":
                             )
 
         # show results
-        cv.imshow('cam', frame)
-        cv.waitKey(10)
+        cv.imshow('cam', frame) # window-name, frame
+        key = cv.waitKey(10)
 
-        if cv.waitKey(1) & 0xFF == 27:
+        if key & 0xFF == 27: # esc
             break
+        elif key == 32: # space
+            print('press nay key to resume')
+            cv.waitKey() # pause
+        elif key == ord('s'):
+            fname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.jpg'
+            fname = opt.output_dir + fname
+            cv.imwrite(fname, frame)
+        elif key == ord('r'):
+            print('recording...')
+            vname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.avi'
+            vname = opt.output_dir + vname
+            writer = cv.VideoWriter(vname, fourcc, 25.0, (opt.img_size, opt.img_size)) # can change video size option
+            record = True
+        elif key == ord('t'):
+            print('finish recording...')
+            writer.release()
+            record = False
+        
+        if record:
+            writer.write(frame)
 
     cap.release()
     cv.destroyAllWindows()

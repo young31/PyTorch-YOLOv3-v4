@@ -37,9 +37,21 @@ Some version difference issues are revised
 ```
 
 4.  Add use_custom option in detect/train/test for convenience
+    
     -   Not general purpose
+    
 5.  Add video.py 
+    
     -   Now you can apply models with video/cam 
+    
+6.  Add capture and recording
+
+    -   output will be saved in output folder
+
+    -   press **space** to pause
+    -   press **s** to capture
+    -   press **r** to record
+    -   press **t** to finish recording
 
 ## Download Prerequisite
 

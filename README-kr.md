@@ -36,9 +36,21 @@
 ```
 
 4.  detect/train/test에서 use_custom 옵션 설정하여 한 번에 처리 하도록 추가
+    
     -   general purpose와는 거리가 있을 수 있음
+    
 5.  video.py 추가
+    
     -   기존 image detect만 지원하던 것에서 video/cam을 활용할 수 있도록 파일 추가
+    
+6.  video작업시 캡쳐 및 비디오 저장 기능 추가
+
+    -   결과는 output 폴더에 저장
+
+    -   **space**를 누르면 일시정지
+    -   **s**를 누르면 캡쳐
+    -   **r**을 누르면 녹화
+    -   **t**를 누르면 녹화 중지
 
 ## Download Prerequisite
 -   Darknet파일을 받기 위해 wget을 사용할 수 없으므로 직접 url을 입력하여 가져옵니다.
