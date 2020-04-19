@@ -32,7 +32,6 @@ if __name__ == "__main__":
     parser.add_argument("--cam", type=bool, default=False, help="use cam instead of video")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     opt = parser.parse_args()
-    print(opt)
 
     # Use custom weight
     if opt.use_custom:
@@ -41,7 +40,8 @@ if __name__ == "__main__":
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
-        print(opt)
+        
+    print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Darknet(opt.model_def, img_size=opt.img_size).to(device)

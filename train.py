@@ -47,7 +47,8 @@ if __name__ == "__main__":
             opt.pretrained_weights = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
         opt.data_config = 'config/custom.data'
-        print(opt)
+    
+    print(opt)
     logger = Logger("logs")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

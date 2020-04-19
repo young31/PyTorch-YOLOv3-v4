@@ -70,7 +70,6 @@ if __name__ == "__main__":
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     opt = parser.parse_args()
-    print(opt)
 
     # Use custom weight
     if opt.use_custom:
@@ -80,7 +79,8 @@ if __name__ == "__main__":
             opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
         opt.data_config = 'config/custom.data'
-        print(opt)
+        
+    print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
