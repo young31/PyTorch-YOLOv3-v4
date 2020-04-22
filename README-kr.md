@@ -17,11 +17,14 @@
 
 ## Main Contribution
 
-1.  bash파일을 py파일로 변환
-    -   config, data 폴더의 bash파일을 py파일로 변환하여 윈도우 환경에서도 활용가능하게 변경
-    -   데이터를 준비하고 위 명령어들을 한 번에 처리할 수 있도록 py파일 추가
-2.  utils/logger 버전 업데이트
-    -   tf1버전으로 작성된 파일을 2버전에서도 사용할 수 있도록 변경
+### 1. bash파일을 py파일로 변환
+
+-   config, data 폴더의 bash파일을 py파일로 변환하여 윈도우 환경에서도 활용가능하게 변경
+-   데이터를 준비하고 위 명령어들을 한 번에 처리할 수 있도록 py파일 추가
+
+### utils/logger 버전 업데이트
+
+-   tf1버전으로 작성된 파일을 2버전에서도 사용할 수 있도록 변경
 
 ```python
 # add tf.compat.v1.disable_eager_execution()
@@ -29,28 +32,28 @@
 # tf.Summary => tf.compat.v1.Summary
 ```
 
-3.  utils/utils내에서 pytorch 버전 변경에 따른 Tensor 유형 변경
+### 3. utils/utils내에서 pytorch 버전 변경에 따른 Tensor 유형 변경
 
 ```python
 # ByteTensor => BoolTensor
 ```
 
-4.  detect/train/test에서 use_custom 옵션 설정하여 한 번에 처리 하도록 추가
-    
-    -   general purpose와는 거리가 있을 수 있음
-    
-5.  video.py 추가
-    
-    -   기존 image detect만 지원하던 것에서 video/cam을 활용할 수 있도록 파일 추가
-    
-6.  video작업시 캡쳐 및 비디오 저장 기능 추가
+### 4. detect/train/test에서 use_custom 옵션 설정하여 한 번에 처리 하도록 추가
 
-    -   결과는 output 폴더에 저장
+-   general purpose와는 거리가 있을 수 있음
 
-    -   **space**를 누르면 일시정지
-    -   **s**를 누르면 캡쳐
-    -   **r**을 누르면 녹화
-    -   **t**를 누르면 녹화 중지
+### 5. video.py 추가
+
+-   기존 image detect만 지원하던 것에서 video/cam을 활용할 수 있도록 파일 추가
+
+### 6. video작업시 캡쳐 및 비디오 저장 기능 추가
+
+-   결과는 output 폴더에 저장
+
+-   **space**를 누르면 일시정지
+-   **s**를 누르면 캡쳐
+-   **r**을 누르면 녹화
+-   **t**를 누르면 녹화 중지
 
 ## Download Prerequisite
 -   Darknet파일을 받기 위해 wget을 사용할 수 없으므로 직접 url을 입력하여 가져옵니다.

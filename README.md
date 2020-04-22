@@ -18,11 +18,14 @@ Some version difference issues are revised
 
 ## Main Contribution
 
-1.  Convert from .sh file to .py file
-    -   .sh files in config, data folder are converted for window users to use
-    -   additional file to apply above easily can be used 
-2.  In utils/logger Tensorflow version issues
-    -   tf1 version codes are converted to tf2 usage
+### 1. Convert from .sh file to .py file
+
+-   .sh files in config, data folder are converted for window users to use
+-   additional file to apply above easily can be used 
+
+### 2. In utils/logger Tensorflow version issues
+
+-   tf1 version codes are converted to tf2 usage
 
 ```python
 # add tf.compat.v1.disable_eager_execution()
@@ -30,28 +33,28 @@ Some version difference issues are revised
 # tf.Summary => tf.compat.v1.Summary
 ```
 
-3.  In utils/utils PyTorch version issue
+### 3. In utils/utils PyTorch version issue
 
 ```python
 # ByteTensor => BoolTensor
 ```
 
-4.  Add use_custom option in detect/train/test for convenience
-    
-    -   Not general purpose
-    
-5.  Add video.py 
-    
-    -   Now you can apply models with video/cam 
-    
-6.  Add capture and recording
+### 4. Add use_custom option in detect/train/test for convenience
 
-    -   output will be saved in output folder
+-   Not general purpose
 
-    -   press **space** to pause
-    -   press **s** to capture
-    -   press **r** to record
-    -   press **t** to finish recording
+### 5. Add video.py 
+
+-   Now you can apply models with video/cam 
+
+### 6. Add capture and recording
+
+-   output will be saved in output folder
+
+-   press **space** to pause
+-   press **s** to capture
+-   press **r** to record
+-   press **t** to finish recording
 
 ## Download Prerequisite
 
