@@ -118,7 +118,7 @@ if __name__ == "__main__":
             fname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.jpg'
             fname = opt.output_dir + fname
             cv.imwrite(fname, frame)
-        elif key == ord('r'):
+        elif key == ord('r') and not record:
             print('recording...')
             vname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.avi'
             vname = opt.output_dir + vname
