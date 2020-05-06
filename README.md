@@ -8,6 +8,8 @@
 
 **If you are interested, visit origin repository above**
 
+### ※Default Version changes yolov3 to yolov4※
+
 한국어 버전은 [여기](https://github.com/young31/PyTorch-YOLOv3/blob/master/README-kr.md)
 
 ## Purpose
@@ -50,11 +52,34 @@ Some version difference issues are revised
 ### 6. Add capture and recording
 
 -   output will be saved in output folder
-
 -   press **space** to pause
 -   press **s** to capture
 -   press **r** to record
 -   press **t** to finish recording
+
+### 7. Models.py(2020.05.06)
+
+-   insert hyperparameter value
+
+```bash
+-   momentum=0.9 -> momentum=float(hyperparams["momentum"]
+-   eps=1e-5 -> eps=float(hyperparams['decay']
+```
+
+-   add mish activation
+
+```python
+class Mish(nn.Module):
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x):
+        return x * torch.tanh(F.softplus(x))
+        
+elif module_def["activation"] == "mish":
+	modules.add_module(f"mish_{module_i}", Mish())
+```
+
 
 ## Download Prerequisite
 
@@ -62,6 +87,14 @@ Some version difference issues are revised
 -   Files below should be located in weights folder
 
 ```bash
+# for v4
+# yolov4.conv.137
+https://drive.google.com/file/d/1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT/view
+```
+#############################################################################
+
+```bash
+# for v3
 # darknet
 https://pjreddie.com/media/files/darknet53.conv.74
 # yolo

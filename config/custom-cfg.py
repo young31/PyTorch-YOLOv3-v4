@@ -10,8 +10,8 @@ if __name__=='__main__':
 
     n_class = opt.n_classes
     custom_num = 3*(n_class+5)
-    f = open('./yolov3-custom.txt', 'r')
-    tar = open('./yolov3-custom.cfg', 'w')
+    f = open(f'./yolov4-custom.txt', 'r')
+    tar = open(f'./yolov4-custom.cfg', 'w')
 
     a=f.read()
     a = a.replace('custom_num', str(custom_num))

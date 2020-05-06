@@ -24,8 +24,8 @@ from matplotlib.ticker import NullLocator
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_folder", type=str, default="data/sample_images", help="path to dataset")
-    parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
-    parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
+    parser.add_argument("--model_def", type=str, default="config/yolov4.cfg", help="path to model definition file")
+    parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # Use custom weight
     if opt.use_custom:
-        opt.model_def = 'config/yolov3-custom.cfg'
+        opt.model_def = 'config/yolov4-custom.cfg'
         ls = sorted(os.listdir('./checkpoints'))
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
 
     # Set up model
-    model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
+    model = Darknet(opt.model_def).to(device)
 
     if opt.weights_path.endswith(".weights"):
         # Load darknet weights
@@ -85,8 +85,8 @@ if __name__ == "__main__":
         # Get detections
         with torch.no_grad():
             detections = model(input_imgs)
+            print(detections)
             detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
-
         # Log progress
         current_time = time.time()
         inference_time = datetime.timedelta(seconds=current_time - prev_time)

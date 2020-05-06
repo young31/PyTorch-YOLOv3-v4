@@ -1,4 +1,3 @@
-
 .DS_Store
 build
 .git
@@ -9,6 +8,7 @@ data/coco
 backup
 weights/*.weights
 weights/darknet53.conv.74
+weights/yolov4.conv.137
 __pycache__
 checkpoints
 video_test/
@@ -16,5 +16,4 @@ workingspace/
 logs/
 .vscode/
 .ipynb_checkpoints/
-*.txt
 *.xml

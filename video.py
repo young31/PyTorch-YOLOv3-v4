@@ -22,8 +22,8 @@ import cv2 as cv
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_path", type=str, default="data/sample_videos/sample.mp4", help="path to dataset")
-    parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
-    parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
+    parser.add_argument("--model_def", type=str, default="config/yolov4.cfg", help="path to model definition file")
+    parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
@@ -36,14 +36,13 @@ if __name__ == "__main__":
 
     # Use custom weight
     if opt.use_custom:
-        opt.model_def = 'config/yolov3-custom.cfg'
+        opt.model_def = 'config/yolov4-custom.cfg'
         ls = sorted(os.listdir('./checkpoints'))
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
         
     print(opt)
-    print('###########################\n# press space to pause\n# press s to capture\n# press r to record\n# press t to finish recording\n###########################')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
@@ -60,6 +59,7 @@ if __name__ == "__main__":
 
     classes = load_classes(opt.class_path)
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+    print('###########################\n# press space to pause\n# press s to capture\n# press r to record\n# press t to finish recording\n###########################')
     
     # To transform from numpy to tensor
     trfs = transforms.ToTensor()
@@ -86,7 +86,6 @@ if __name__ == "__main__":
         with torch.no_grad():
             detections = model(input_frame)
             detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)[0] # Detections: x1, y1, x2, y2, conf, cls_conf, cls_pred
-            
         # Draw boxed
         if detections is not None:
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
@@ -104,7 +103,6 @@ if __name__ == "__main__":
                             (255, 0, 0), # color
                             2 # thickness
                             )
-
         # show results
         cv.imshow('cam', frame) # window-name, frame
         key = cv.waitKey(10)

@@ -7,6 +7,8 @@
 
 **자세한 설명은 각 repo에가시면 더 자세히 알 수 있습니다.**
 
+### ※기본 욜로 버전을 v3에서 v4로 변경※
+
 ~~Erik Linder-Norén님은 GAN때도 많이 배웠는데 여기서도~~
 
 ## Purpose
@@ -51,15 +53,51 @@
 -   결과는 output 폴더에 저장
 
 -   **space**를 누르면 일시정지
+
 -   **s**를 누르면 캡쳐
+
 -   **r**을 누르면 녹화
+
 -   **t**를 누르면 녹화 중지
 
+### 7. Models.py
+
+-   batchnorm을 하이퍼 파라미터에 따라서 적용하도록 변경
+
+```bash
+-   momentum=0.9 -> momentum=float(hyperparams["momentum"]
+-   eps=1e-5 -> eps=float(hyperparams['decay']
+```
+
+-   Mish activation 추가
+
+```python
+class Mish(nn.Module):
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x):
+        return x * torch.tanh(F.softplus(x))
+    
+elif module_def["activation"] == "mish":
+    modules.add_module(f"mish_{module_i}", Mish())
+```
+
 ## Download Prerequisite
+
 -   Darknet파일을 받기 위해 wget을 사용할 수 없으므로 직접 url을 입력하여 가져옵니다.
 -   해당 파일을 weights 폴더에위치시킵니다.
 
 ```bash
+# for v4
+# yolov4.conv.137
+https://drive.google.com/file/d/1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT/view
+```
+
+#############################################################################
+
+```bash
+# for v3
 # darknet
 https://pjreddie.com/media/files/darknet53.conv.74
 # yolo

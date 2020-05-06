@@ -59,9 +59,9 @@ def evaluate(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", type=int, default=8, help="size of each image batch")
-    parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
+    parser.add_argument("--model_def", type=str, default="config/yolov4.cfg", help="path to model definition file")
     parser.add_argument("--data_config", type=str, default="config/coco.data", help="path to data config file")
-    parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
+    parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
     parser.add_argument("--iou_thres", type=float, default=0.5, help="iou threshold required to qualify as detected")
     parser.add_argument("--conf_thres", type=float, default=0.001, help="object confidence threshold")
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     # Use custom weight
     if opt.use_custom:
-        opt.model_def = 'config/yolov3-custom.cfg'
+        opt.model_def = 'config/yolov4-custom.cfg'
         ls = sorted(os.listdir('./checkpoints'))
         if len(ls) > 0:
             opt.weights_path = 'checkpoints/'+ls[-1]

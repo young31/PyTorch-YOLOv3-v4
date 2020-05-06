@@ -12,6 +12,13 @@ from utils.utils import build_targets, to_cpu, non_max_suppression
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+class Mish(nn.Module):
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x):
+        return x * torch.tanh(F.softplus(x))
+
 
 def create_modules(module_defs):
     """
@@ -40,9 +47,11 @@ def create_modules(module_defs):
                 ),
             )
             if bn:
-                modules.add_module(f"batch_norm_{module_i}", nn.BatchNorm2d(filters, momentum=0.9, eps=1e-5))
+                modules.add_module(f"batch_norm_{module_i}", nn.BatchNorm2d(filters, momentum=float(hyperparams["momentum"]), eps=float(hyperparams['decay'])))
             if module_def["activation"] == "leaky":
                 modules.add_module(f"leaky_{module_i}", nn.LeakyReLU(0.1))
+            elif module_def["activation"] == "mish":
+                modules.add_module(f"mish_{module_i}", Mish())
 
         elif module_def["type"] == "maxpool":
             kernel_size = int(module_def["size"])
@@ -277,6 +286,8 @@ class Darknet(nn.Module):
         cutoff = None
         if "darknet53.conv.74" in weights_path:
             cutoff = 75
+        elif "yolov4.conv.137" in weights_path:
+            cutoff = 137
 
         ptr = 0
         for i, (module_def, module) in enumerate(zip(self.module_defs, self.module_list)):
