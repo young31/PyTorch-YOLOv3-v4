@@ -18,6 +18,7 @@ from torchvision import datasets
 from torch.autograd import Variable
 
 import cv2 as cv
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -72,7 +73,10 @@ if __name__ == "__main__":
 
     fourcc = cv.VideoWriter_fourcc(*'DIVX')
     record = False
-    
+
+    # bbox color map
+    cmap = plt.get_cmap("tab20b")
+    colors = [tuple(map(lambda x: 255*x, cmap(i)[:3])) for i in np.linspace(0, 1, 80)]
     # Real-time detection
     while cap.isOpened():
         ret, frame = cap.read()
@@ -92,15 +96,15 @@ if __name__ == "__main__":
                 cv.rectangle(frame, # target image
                             (x1, y1), # one point of rectengle
                             (x2, y2), # diagonal direction of the above
-                            (0, 0, 255), # color
-                            3 # thickness
+                            colors[int(cls_pred)], # color
+                            2 # thickness
                             )
                 cv.putText(frame, # target images
                             classes[int(cls_pred)], # str
                             (x1+10, y1+10), # location; (x1, y1) would not work
                             cv.FONT_HERSHEY_SIMPLEX, # font
-                            1, # font size
-                            (255, 0, 0), # color
+                            0.6, # font size
+                            colors[int(cls_pred)], # color
                             2 # thickness
                             )
         # show results
