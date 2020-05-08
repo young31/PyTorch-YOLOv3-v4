@@ -99,7 +99,7 @@ if __name__ == "__main__":
                             2 # thickness
                             )
                 cv.putText(frame, # target images
-                            classes[int(cls_pred)], # str
+                            f'{classes[int(cls_pred)]} {round(float(cls_conf), 2)}' , # str
                             (x1+10, y1+10), # location; (x1, y1) would not work
                             cv.FONT_HERSHEY_SIMPLEX, # font
                             0.6, # font size
