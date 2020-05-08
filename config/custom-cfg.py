@@ -13,9 +13,6 @@ if __name__=='__main__':
     f = open(f'./yolov4-custom.txt', 'r')
     tar = open(f'./yolov4-custom.cfg', 'w')
 
-    from_param  = ['custom_num', '$NUM_CLASSES', 'custom_max_batches']
-    to_param = [str(custom_num), str(n_class), 2000*n_class]
-
     convert_dict = {
         'custom_num': str(custom_num),
         '$NUM_CLASSES': str(n_class),
