@@ -90,6 +90,8 @@ elif module_def["activation"] == "mish":
 # for v4
 # yolov4.conv.137
 https://drive.google.com/file/d/1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT/view
+# weights
+https://drive.google.com/file/d/1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT/view
 ```
 #############################################################################
 
