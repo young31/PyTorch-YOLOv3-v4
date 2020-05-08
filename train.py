@@ -186,3 +186,5 @@ if __name__ == "__main__":
 
         if epoch % opt.checkpoint_interval == 0:
             torch.save(model.state_dict(), f"checkpoints/yolov4_ckpt_%d.pth" % epoch)
+
+    torch.save(model.state_dict(), f"weights/custom/yolov4_custom_{AP.mean()}.pth")

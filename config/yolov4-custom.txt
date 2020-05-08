@@ -1,6 +1,6 @@
 [net]
 batch=64
-subdivisions=8
+subdivisions=16
 # Training
 #width=512
 #height=512
@@ -16,9 +16,9 @@ hue=.1
 
 learning_rate=0.00261
 burn_in=1000
-max_batches = 500500
+max_batches = custom_max_batches
 policy=steps
-steps=400000,450000
+steps=min_steps,max_steps
 scales=.1,.1
 
 #cutmix=1

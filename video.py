@@ -29,7 +29,6 @@ if __name__ == "__main__":
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
-    parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
     parser.add_argument("--cam", type=bool, default=False, help="use cam instead of video")
     parser.add_argument("--use_custom", type=bool, default=False, help="use custom trained weight")
     parser.add_argument("--output_dir", type=str, default='output/', help="dir to stroe recorded video or snapshot")
@@ -38,11 +37,10 @@ if __name__ == "__main__":
     # Use custom weight
     if opt.use_custom:
         opt.model_def = 'config/yolov4-custom.cfg'
-        ls = sorted(os.listdir('./checkpoints'))
-        if len(ls) > 0:
-            opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
-        
+        ls = sorted(os.listdir('./weights/custom'))
+        if len(ls) > 0:
+            opt.weights_path = 'weights/custom/'+ls[-1]
     print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -76,7 +74,8 @@ if __name__ == "__main__":
 
     # bbox color map
     cmap = plt.get_cmap("tab20b")
-    colors = [tuple(map(lambda x: 255*x, cmap(i)[:3])) for i in np.linspace(0, 1, 80)]
+    colors = [tuple(map(lambda x: 255*x, cmap(i)[:3])) for i in np.linspace(0, 1, len(classes))]
+    
     # Real-time detection
     while cap.isOpened():
         ret, frame = cap.read()

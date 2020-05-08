@@ -32,17 +32,16 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
-    parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     opt = parser.parse_args()
 
     # Use custom weight
     if opt.use_custom:
         opt.model_def = 'config/yolov4-custom.cfg'
-        ls = sorted(os.listdir('./checkpoints'))
-        if len(ls) > 0:
-            opt.weights_path = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
+        ls = sorted(os.listdir('./weights/custom'))
+        if len(ls) > 0:
+            opt.weights_path = 'weights/custom/'+ls[-1]
         
     print(opt)
 
