@@ -85,7 +85,6 @@ if __name__ == "__main__":
         # Get detections
         with torch.no_grad():
             detections = model(input_imgs)
-            print(detections)
             detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
         # Log progress
         current_time = time.time()
