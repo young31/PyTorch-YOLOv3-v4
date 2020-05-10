@@ -12,13 +12,6 @@ from utils.utils import build_targets, to_cpu, non_max_suppression
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-class Mish(nn.Module):
-    def __init__(self):
-        super(Mish, self).__init__()
-
-    def forward(self, x):
-        return x * torch.tanh(F.softplus(x))
-
 
 def create_modules(module_defs):
     """
@@ -92,6 +85,14 @@ def create_modules(module_defs):
     return hyperparams, module_list
 
 
+class Mish(nn.Module):
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x):
+        return x * torch.tanh(F.softplus(x))
+
+        
 class Upsample(nn.Module):
     """ nn.Upsample is deprecated """
 

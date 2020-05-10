@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # Use custom weight
     if opt.use_custom:
         opt.model_def = 'config/yolov4-custom.cfg'
-        ls = sorted(os.listdir('./checkpoints'))
+        ls = sorted(os.listdir('./weights/custom/'))
         if len(ls)>0:
             opt.pretrained_weights = 'checkpoints/'+ls[-1]
         opt.class_path = 'data/custom/classes.names'
