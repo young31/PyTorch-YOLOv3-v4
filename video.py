@@ -26,8 +26,8 @@ if __name__ == "__main__":
     parser.add_argument("--model_def", type=str, default="config/yolov4.cfg", help="path to model definition file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
-    parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
-    parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
+    parser.add_argument("--conf_thres", type=float, default=0.6, help="object confidence threshold")
+    parser.add_argument("--nms_thres", type=float, default=0.3, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--cam", type=bool, default=False, help="use cam instead of video")
     parser.add_argument("--use_custom", type=bool, default=False, help="use custom trained weight")
@@ -71,6 +71,7 @@ if __name__ == "__main__":
 
     fourcc = cv.VideoWriter_fourcc(*'DIVX')
     record = False
+    n_frame = cap.get(cv.CAP_PROP_FPS)
 
     # bbox color map
     cmap = plt.get_cmap("tab20b")
@@ -123,7 +124,7 @@ if __name__ == "__main__":
             print('recording...')
             vname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.avi'
             vname = opt.output_dir + vname
-            writer = cv.VideoWriter(vname, fourcc, 25.0, (opt.img_size, opt.img_size)) # can change video size option
+            writer = cv.VideoWriter(vname, fourcc, int(n_frame), (opt.img_size, opt.img_size)) # can change video size option
             record = True
         elif key == ord('t'):
             print('finish recording...')
