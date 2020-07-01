@@ -74,7 +74,12 @@ class ListDataset(Dataset):
         self.max_size = self.img_size + 3 * 32
         self.batch_count = 0
 
-    def load_image(self, index):
+    def __getitem__(self, index):
+
+        # ---------
+        #  Image
+        # ---------
+
         img_path = self.img_files[index % len(self.img_files)].rstrip()
 
         # Extract image as PyTorch tensor
@@ -84,18 +89,19 @@ class ListDataset(Dataset):
         if len(img.shape) != 3:
             img = img.unsqueeze(0)
             img = img.expand((3, img.shape[1:]))
-            
-        img = resize(img, self.img_size)
-        
-        return img_path, img
 
-    def load_target(self, index, img):
         _, h, w = img.shape
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
+        # Pad to square resolution
         img, pad = pad_to_square(img, 0)
         _, padded_h, padded_w = img.shape
-        
+
+        # ---------
+        #  Label
+        # ---------
+
         label_path = self.label_files[index % len(self.img_files)].rstrip()
+
         targets = None
         if os.path.exists(label_path):
             boxes = torch.from_numpy(np.loadtxt(label_path).reshape(-1, 5))
@@ -117,13 +123,6 @@ class ListDataset(Dataset):
 
             targets = torch.zeros((len(boxes), 6))
             targets[:, 1:] = boxes
-            
-        return targets
-
-    def __getitem__(self, index):
-        img_path, img = self.load_image(index)
-        
-        targets = self.load_target(index, img)
 
         # Apply augmentations
         if self.augment:
