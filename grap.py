@@ -19,27 +19,27 @@ from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
 
+def convert(x):
+    return max(0, int(x.numpy()))
 
-def evaluate(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
+def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
     model.eval()
 
     # Get dataloader
-    dataset = ListDataset(path, img_size=img_size, augment=False, multiscale=False)
-    dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=False, num_workers=0, collate_fn=dataset.collate_fn, pin_memory=True
+    # dataset = ListDataset(path, img_size=img_size, augment=False, multiscale=False)
+    dataloader = DataLoader(
+        ImageFolder(opt.image_folder, img_size=opt.img_size),
+        batch_size=opt.batch_size,
+        shuffle=False,
+        num_workers=opt.n_cpu,
     )
-
+    classes = load_classes(opt.class_path)
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     labels = []
     sample_metrics = []  # List of tuples (TP, confs, pred)
-    for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):
-
-        # Extract labels
-        labels += targets[:, 1].tolist()
-        # Rescale target
-        targets[:, 2:] = xywh2xyxy(targets[:, 2:])
-        targets[:, 2:] *= img_size
+    img_label = 1
+    for batch_i, (path, imgs) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):
 
         imgs = Variable(imgs.type(Tensor), requires_grad=False)
 
@@ -47,28 +47,34 @@ def evaluate(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size
             outputs = model(imgs)
             outputs = non_max_suppression(outputs, conf_thres=conf_thres, nms_thres=nms_thres)
 
-        sample_metrics += get_batch_statistics(outputs, targets, iou_threshold=iou_thres)
-
-    # Concatenate sample statistics
-    true_positives, pred_scores, pred_labels = [np.concatenate(x, 0) for x in list(zip(*sample_metrics))]
-    precision, recall, AP, f1, ap_class = ap_per_class(true_positives, pred_scores, pred_labels, labels)
-
-    return precision, recall, AP, f1, ap_class
-
+        # sample_metrics += get_batch_statistics(outputs, targets, iou_threshold=iou_thres)
+        # outputs : detections
+        if outputs is not None:
+            img = np.array(Image.open(path[0]))
+            for output in outputs:
+                output = rescale_boxes(output, opt.img_size, img.shape[:2])
+                for x1, y1, x2, y2, conf, cls_conf, cls_pred in output:
+                    x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
+                    # print(x1, x2, y1, y2)
+                    # print(img[x1:x2, y1:y2].shape)
+                    store_img = img[y1:y2,x1:x2]
+                    plt.imsave(f'./store/{img_label}.jpg', store_img)
+                    img_label += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", type=int, default=8, help="size of each image batch")
+    parser.add_argument("--batch_size", type=int, default=1, help="size of each image batch")
     parser.add_argument("--model_def", type=str, default="config/yolov4.cfg", help="path to model definition file")
     parser.add_argument("--data_config", type=str, default="config/coco.data", help="path to data config file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
     parser.add_argument("--iou_thres", type=float, default=0.5, help="iou threshold required to qualify as detected")
     parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
-    parser.add_argument("--nms_thres", type=float, default=0.3, help="iou thresshold for non-maximum suppression")
+    parser.add_argument("--nms_thres", type=float, default=0.5, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
+    parser.add_argument("--image_folder", type=str, default="data/sample_images", help="path to dataset")
     opt = parser.parse_args()
 
     # Use custom weight
@@ -96,10 +102,8 @@ if __name__ == "__main__":
     else:
         # Load checkpoint weights
         model.load_state_dict(torch.load(opt.weights_path))
-
-    print("Compute mAP...")
-
-    precision, recall, AP, f1, ap_class = evaluate(
+        
+    store(
         model,
         path=valid_path,
         iou_thres=opt.iou_thres,
@@ -108,9 +112,3 @@ if __name__ == "__main__":
         img_size=opt.img_size,
         batch_size=opt.batch_size,
     )
-
-    print("Average Precisions:")
-    for i, c in enumerate(ap_class):
-        print(f"+ Class '{c}' ({class_names[c]}) - AP: {AP[i]}")
-
-    print(f"mAP: {AP.mean()}")

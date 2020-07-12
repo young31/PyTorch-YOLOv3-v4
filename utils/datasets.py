@@ -73,13 +73,8 @@ class ListDataset(Dataset):
         self.min_size = self.img_size - 3 * 32
         self.max_size = self.img_size + 3 * 32
         self.batch_count = 0
-
-    def __getitem__(self, index):
-
-        # ---------
-        #  Image
-        # ---------
-
+        
+    def load_image(self, index):
         img_path = self.img_files[index % len(self.img_files)].rstrip()
 
         # Extract image as PyTorch tensor
@@ -89,11 +84,15 @@ class ListDataset(Dataset):
         if len(img.shape) != 3:
             img = img.unsqueeze(0)
             img = img.expand((3, img.shape[1:]))
-
+            
+        return img_path, img
+    
+    def load_targets(self, index, img):
+        img = torch.from_numpy(img)
         _, h, w = img.shape
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
         # Pad to square resolution
-        img, pad = pad_to_square(img, 0)
+#         img, pad = pad_to_square(img, 0)
         _, padded_h, padded_w = img.shape
 
         # ---------
@@ -110,11 +109,6 @@ class ListDataset(Dataset):
             y1 = h_factor * (boxes[:, 2] - boxes[:, 4] / 2)
             x2 = w_factor * (boxes[:, 1] + boxes[:, 3] / 2)
             y2 = h_factor * (boxes[:, 2] + boxes[:, 4] / 2)
-            # Adjust for added padding
-            x1 += pad[0]
-            y1 += pad[2]
-            x2 += pad[1]
-            y2 += pad[3]
             # Returns (x, y, w, h)
             boxes[:, 1] = ((x1 + x2) / 2) / padded_w
             boxes[:, 2] = ((y1 + y2) / 2) / padded_h
@@ -123,7 +117,15 @@ class ListDataset(Dataset):
 
             targets = torch.zeros((len(boxes), 6))
             targets[:, 1:] = boxes
+        return targets
 
+    def __getitem__(self, index):
+        # img_path, img, targets = self.load_mosaic(index)
+
+        img_path, img = self.load_image(index)
+        targets = self.load_targets(index, img.numpy())
+        img = resize(img, self.img_size)
+        
         # Apply augmentations
         if self.augment:
             if np.random.random() < 0.5:
@@ -153,67 +155,52 @@ class ListDataset(Dataset):
 
     # def load_mosaic(self, index):
     #     # loads images in a mosaic
+    #     img_path = self.img_files[index % len(self.img_files)].rstrip()
 
     #     labels4 = []
     #     s = self.img_size
-    #     xc, yc = [int(random.uniform(s * 0.5, s * 1.5)) for _ in range(2)]  # mosaic center x, y
-    #     indices = [index] + [random.randint(0, len(self.labels) - 1) for _ in range(3)]  # 3 additional image indices
+    #     xc, yc = [int(random.uniform(s * 0.1, s * 0.9)) for _ in range(2)]  # mosaic center x, y
+    #     indices = [index] + [random.randint(0, len(self.label_files) - 1) for _ in range(3)]  # 3 additional image indices
+        
+    #     img4 = torch.full((s, s, 3), 0)
     #     for i, index in enumerate(indices):
     #         # Load image
     #         img_path = self.img_files[index % len(self.img_files)].rstrip()
 
     #         # Extract image as PyTorch tensor
     #         img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
-    #         if len(img.shape) != 3:
-    #             img = img.unsqueeze(0)
-    #             img = img.expand((3, img.shape[1:]))
+    #         img = resize(img, self.img_size)
+    #         img = img.permute(1, 2, 0)
+            
+    #         if i==0:
+    #             xmin = 0; xmax = xc; ymin=yc; ymax=s
+    #         elif i==1:
+    #             xmin = xc; xmax = s; ymin=yc; ymax=s
+    #         elif i==2:
+    #             xmin = 0; xmax = xc; ymin=0; ymax=yc
+    #         else:
+    #             xmin = xc; xmax = s; ymin=0; ymax=yc
+                
+    #         img4[xmin:xmax, ymin:ymax] = img[xmin:xmax, ymin:ymax]
 
-    #         _, h, w = img.shape
-    #         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
-    #         img, pad = pad_to_square(img, 0)
-    #         _, padded_h, padded_w = img.shape
+    #         targets = self.load_targets(index, img.numpy())
+    #         print(targets)
+    #         for _, i, x, y, w, h  in targets:
+    #             x *= 416; y *= 416; w *= 416; h *= 416
+    #             x1 = x-w/2; x2 = x+w/2
+    #             x1 = np.clip(x1, xmin, xmax); x2 = np.clip(x2, xmin, xmax)
+    #             y1 = y-h/2; y2 = y+h/2
+    #             y1 = np.clip(y1, ymin, ymax); y2 = np.clip(y2, ymin, ymax)
+    #             if x2-x1==0 or y2-y1==0:
+    #                 pass
+    #             else:
+    #                 x = ((x1+x2)/2) / w
+    #                 y = ((y1+y2)/2) / h
+    #                 w = abs(x2-x1)/w
+    #                 h = abs(y2-y1)/h
+    #                 labels4.append(np.array([0, i, x, y, w, h]))
 
-    #         # place img in img4
-    #         if i == 0:  # top left
-    #             img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
-    #             x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
-    #             x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
-    #         elif i == 1:  # top right
-    #             x1a, y1a, x2a, y2a = xc, max(yc - h, 0), min(xc + w, s * 2), yc
-    #             x1b, y1b, x2b, y2b = 0, h - (y2a - y1a), min(w, x2a - x1a), h
-    #         elif i == 2:  # bottom left
-    #             x1a, y1a, x2a, y2a = max(xc - w, 0), yc, xc, min(s * 2, yc + h)
-    #             x1b, y1b, x2b, y2b = w - (x2a - x1a), 0, max(xc, w), min(y2a - y1a, h)
-    #         elif i == 3:  # bottom right
-    #             x1a, y1a, x2a, y2a = xc, yc, min(xc + w, s * 2), min(s * 2, yc + h)
-    #             x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
-
-    #         img4[y1a:y2a, x1a:x2a] = img[y1b:y2b, x1b:x2b]  # img4[ymin:ymax, xmin:xmax]
-    #         padw = x1a - x1b
-    #         padh = y1a - y1b
-
-    #         # Labels
-    #         label_path = self.label_files[index % len(self.img_files)].rstrip()
-
-    #         targets = None
-    #         if os.path.exists(label_path):
-    #             boxes = torch.from_numpy(np.loadtxt(label_path).reshape(-1, 5))
-    #             # Extract coordinates for unpadded + unscaled image
-    #             x1 = w_factor * (boxes[:, 1] - boxes[:, 3] / 2)
-    #             y1 = h_factor * (boxes[:, 2] - boxes[:, 4] / 2)
-    #             x2 = w_factor * (boxes[:, 1] + boxes[:, 3] / 2)
-    #             y2 = h_factor * (boxes[:, 2] + boxes[:, 4] / 2)
-    #             # Adjust for added padding
-    #             x1 += pad[0]
-    #             y1 += pad[2]
-    #             x2 += pad[1]
-    #             y2 += pad[3]
-    #             # Returns (x, y, w, h)
-    #             boxes[:, 1] = ((x1 + x2) / 2) / padded_w
-    #             boxes[:, 2] = ((y1 + y2) / 2) / padded_h
-    #             boxes[:, 3] *= w_factor / padded_w
-    #             boxes[:, 4] *= h_factor / padded_h
-
-    #             targets = torch.zeros((len(boxes), 6))
-    #             targets[:, 1:] = boxes
+    #     img4 = img4.permute(2, 0, 1)
+    #     labels4 = torch.from_numpy(np.array(labels4))
+    #     return img_path, img4, labels4
 

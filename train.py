@@ -21,6 +21,9 @@ from torchvision import datasets
 from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
+from torch.optim import lr_scheduler
+
+from utils.utils import Lookahead
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -32,8 +35,8 @@ if __name__ == "__main__":
     parser.add_argument("--pretrained_weights", type=str, help="if specified starts from checkpoint model")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
-    parser.add_argument("--checkpoint_interval", type=int, default=1, help="interval between saving model weights")
-    parser.add_argument("--evaluation_interval", type=int, default=1, help="interval evaluations on validation set")
+    parser.add_argument("--checkpoint_interval", type=int, default=5, help="interval between saving model weights")
+    parser.add_argument("--evaluation_interval", type=int, default=5, help="interval evaluations on validation set")
     parser.add_argument("--verbose", type=int, default=1, help="to show progress info")
     parser.add_argument("--compute_map", default=False, help="if True computes mAP every tenth batch")
     parser.add_argument("--multiscale_training", default=False, help="allow for multi-scale training")
@@ -85,7 +88,9 @@ if __name__ == "__main__":
         collate_fn=dataset.collate_fn,
     )
 
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.AdamW(model.parameters())
+    optimizer = Lookahead(optimizer)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.9)
 
     metrics = [
         "grid_size",
@@ -120,6 +125,7 @@ if __name__ == "__main__":
                 # Accumulates gradient before each step
                 optimizer.step()
                 optimizer.zero_grad()
+                scheduler.step()
 
             # ----------------
             #   Log progress
@@ -166,8 +172,8 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.001,
-                nms_thres=0.5,
+                conf_thres=0.8,
+                nms_thres=0.3,
                 img_size=opt.img_size,
                 batch_size=opt.batch_size,
             )
@@ -187,6 +193,15 @@ if __name__ == "__main__":
             print(f"---- mAP {AP.mean()}")
 
         if epoch % opt.checkpoint_interval == 0:
+            precision, recall, AP, f1, ap_class = evaluate(
+                model,
+                path=valid_path,
+                iou_thres=0.5,
+                conf_thres=0.8,
+                nms_thres=0.3,
+                img_size=opt.img_size,
+                batch_size=opt.batch_size,
+            )
             torch.save(model.state_dict(), f"weights/custom/yolov4_custom_{round(AP.mean(), 3)}.pth")
 
         print(f'finish {epoch}')

@@ -17,3 +17,5 @@ logs/
 .vscode/
 .ipynb_checkpoints/
 *.xml
+*.jpg
+*.txt
