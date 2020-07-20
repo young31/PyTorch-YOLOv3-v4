@@ -172,8 +172,8 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.8,
-                nms_thres=0.3,
+                conf_thres=0.1,
+                nms_thres=0.5,
                 img_size=opt.img_size,
                 batch_size=opt.batch_size,
             )
@@ -197,8 +197,8 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.8,
-                nms_thres=0.3,
+                conf_thres=0.1,
+                nms_thres=0.4,
                 img_size=opt.img_size,
                 batch_size=opt.batch_size,
             )

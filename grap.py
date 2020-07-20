@@ -54,12 +54,13 @@ def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
             for output in outputs:
                 output = rescale_boxes(output, opt.img_size, img.shape[:2])
                 for x1, y1, x2, y2, conf, cls_conf, cls_pred in output:
-                    x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
-                    # print(x1, x2, y1, y2)
-                    # print(img[x1:x2, y1:y2].shape)
-                    store_img = img[y1:y2,x1:x2]
-                    plt.imsave(f'./store/{img_label}.jpg', store_img)
-                    img_label += 1
+                    if (cls_pred == 0):
+                        x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
+                        # print(x1, x2, y1, y2)
+                        # print(img[x1:x2, y1:y2].shape)
+                        store_img = img[y1:y2,x1:x2]
+                        plt.imsave(f'./store/{img_label}.jpg', store_img)
+                        img_label += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -69,8 +70,8 @@ if __name__ == "__main__":
     parser.add_argument("--weights_path", type=str, default="weights/yolov4.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
     parser.add_argument("--iou_thres", type=float, default=0.5, help="iou threshold required to qualify as detected")
-    parser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
-    parser.add_argument("--nms_thres", type=float, default=0.5, help="iou thresshold for non-maximum suppression")
+    parser.add_argument("--conf_thres", type=float, default=0.5, help="object confidence threshold")
+    parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         
     store(
         model,
-        path=valid_path,
+        path=opt.image_folder,
         iou_thres=opt.iou_thres,
         conf_thres=opt.conf_thres,
         nms_thres=opt.nms_thres,
