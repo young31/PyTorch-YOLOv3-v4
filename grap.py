@@ -54,13 +54,10 @@ def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
             for output in outputs:
                 output = rescale_boxes(output, opt.img_size, img.shape[:2])
                 for x1, y1, x2, y2, conf, cls_conf, cls_pred in output:
-                    if (cls_pred == 0):
-                        x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
-                        # print(x1, x2, y1, y2)
-                        # print(img[x1:x2, y1:y2].shape)
-                        store_img = img[y1:y2,x1:x2]
-                        plt.imsave(f'./store/{img_label}.jpg', store_img)
-                        img_label += 1
+                    x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
+                    store_img = img[y1:y2,x1:x2]
+                    plt.imsave(f'./store/{img_label}.jpg', store_img)
+                    img_label += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
