@@ -22,7 +22,7 @@ import torch.optim as optim
 def convert(x):
     return max(0, int(x.numpy()))
 
-def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
+def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size, target):
     model.eval()
 
     # Get dataloader
@@ -54,10 +54,11 @@ def store(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size):
             for output in outputs:
                 output = rescale_boxes(output, opt.img_size, img.shape[:2])
                 for x1, y1, x2, y2, conf, cls_conf, cls_pred in output:
-                    x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
-                    store_img = img[y1:y2,x1:x2]
-                    plt.imsave(f'./store/{img_label}.jpg', store_img)
-                    img_label += 1
+                    if int(cls_pred.numpy())==target: # pereson=0
+                        x1, y1, x2, y2 = convert(x1), convert(y1), convert(x2), convert(y2)
+                        store_img = img[y1:y2,x1:x2]
+                        plt.imsave(f'./store/{img_label}.jpg', store_img)
+                        img_label += 1
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--use_custom", type=bool, default=False, help="trained weight")
     parser.add_argument("--image_folder", type=str, default="data/sample_images", help="path to dataset")
+    parser.add_argument("--target", type=int, default=0, help="target image to store")
     opt = parser.parse_args()
 
     # Use custom weight
@@ -109,4 +111,5 @@ if __name__ == "__main__":
         nms_thres=opt.nms_thres,
         img_size=opt.img_size,
         batch_size=opt.batch_size,
+        target=opt.target
     )
