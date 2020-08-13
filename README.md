@@ -20,6 +20,20 @@ Some version difference issues are revised
 
 ## Main Contribution
 
+### ※※ 08.13 update ※※
+
+#### add grap.py 
+
+-   cut specific class and store that class part only
+-   classes will be in data/coco.names
+    -   be aware of class index start with 0s
+-   stored images will be located in 'stroe/'
+-   below is example case of dog
+
+![dog](./data/sample_images/dog.jpg)
+
+![cutted](./store/1.jpg)
+
 ### 1. Convert from .sh file to .py file
 
 -   .sh files in config, data folder are converted for window users to use

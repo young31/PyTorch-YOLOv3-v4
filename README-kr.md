@@ -19,6 +19,20 @@
 
 ## Main Contribution
 
+### ※※ 08.13 update ※※
+
+#### grap.py 추가
+
+-   탐지하는 모형에서 원하는 클래스의 부분만 잘라내어 따로 저장하는 기능
+-   class는 data/coco.names에서 확인할 수 있음
+    -   인덱스는 0부터 시작
+-   저장하는 경로는 기본적으로 store/ 에 저장되도록 구현
+-   아래는 dog의 예시
+
+![dog](./data/sample_images/dog.jpg)
+
+![cutted](./store/1.jpg)
+
 ### 1. bash파일을 py파일로 변환
 
 -   config, data 폴더의 bash파일을 py파일로 변환하여 윈도우 환경에서도 활용가능하게 변경
