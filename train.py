@@ -89,7 +89,7 @@ if __name__ == "__main__":
     )
 
     optimizer = torch.optim.AdamW(model.parameters())
-    optimizer = Lookahead(optimizer)
+    # optimizer = Lookahead(optimizer)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.9)
 
     metrics = [
@@ -172,7 +172,7 @@ if __name__ == "__main__":
                 model,
                 path=valid_path,
                 iou_thres=0.5,
-                conf_thres=0.1,
+                conf_thres=0.01,
                 nms_thres=0.5,
                 img_size=opt.img_size,
                 batch_size=opt.batch_size,
@@ -192,16 +192,16 @@ if __name__ == "__main__":
             print(AsciiTable(ap_table).table)
             print(f"---- mAP {AP.mean()}")
 
-        if epoch % opt.checkpoint_interval == 0:
-            precision, recall, AP, f1, ap_class = evaluate(
-                model,
-                path=valid_path,
-                iou_thres=0.5,
-                conf_thres=0.1,
-                nms_thres=0.4,
-                img_size=opt.img_size,
-                batch_size=opt.batch_size,
-            )
+        # if epoch % opt.checkpoint_interval == 0:
+            # precision, recall, AP, f1, ap_class = evaluate(
+            #     model,
+            #     path=valid_path,
+            #     iou_thres=0.5,
+            #     conf_thres=0.1,
+            #     nms_thres=0.4,
+            #     img_size=opt.img_size,
+            #     batch_size=opt.batch_size,
+            # )
             torch.save(model.state_dict(), f"weights/custom/yolov4_custom_{round(AP.mean(), 3)}.pth")
 
         print(f'finish {epoch}')
