@@ -19,6 +19,9 @@ from torch.autograd import Variable
 
 import cv2 as cv
 import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(42)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -32,6 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--cam", type=bool, default=False, help="use cam instead of video")
     parser.add_argument("--use_custom", type=bool, default=False, help="use custom trained weight")
     parser.add_argument("--output_dir", type=str, default='output/', help="dir to stroe recorded video or snapshot")
+    parser.add_argument("--conf", action='store_true', help="add conf score in the label")
     opt = parser.parse_args()
 
     # Use custom weight
@@ -75,7 +79,7 @@ if __name__ == "__main__":
 
     # bbox color map
     cmap = plt.get_cmap("tab20b")
-    colors = [tuple(map(lambda x: 255*x, cmap(i)[:3])) for i in np.linspace(0, 1, len(classes))]
+    colors = [[np.random.randint(0, 255) for _ in range(3)] for _ in range(len(classes))]
     
     # Real-time detection
     while cap.isOpened():
@@ -93,19 +97,26 @@ if __name__ == "__main__":
         # Draw boxed
         if detections is not None:
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                if opt.conf:
+                    label = f'{classes[int(cls_pred)]} {round(float(cls_conf), 2)}'
+                else:
+                    label = f'{classes[int(cls_pred)]}'
+                lt = min(2, round(0.05 * (-x1.numpy() + x2.numpy())))
                 cv.rectangle(frame, # target image
                             (x1, y1), # one point of rectengle
                             (x2, y2), # diagonal direction of the above
                             colors[int(cls_pred)], # color
-                            2 # thickness
+                            1, # thickness
+                            cv.LINE_AA
                             )
                 cv.putText(frame, # target images
-                            f'{classes[int(cls_pred)]} {round(float(cls_conf), 2)}' , # str
-                            (x1+10, y1+10), # location; (x1, y1) would not work
+                            label , # str
+                            (x1, y1+lt*4), # location; (x1, y1) would not work
                             cv.FONT_HERSHEY_SIMPLEX, # font
-                            0.6, # font size
-                            colors[int(cls_pred)], # color
-                            2 # thickness
+                            lt/4, # font size
+                            [255, 255, 255], # color
+                            1, # thickness
+                            lineType=cv.LINE_AA
                             )
         # show results
         cv.imshow('cam', frame) # window-name, frame
