@@ -78,72 +78,76 @@ if __name__ == "__main__":
     n_frame = cap.get(cv.CAP_PROP_FPS)
 
     # bbox color map
-    cmap = plt.get_cmap("tab20b")
+    # cmap = plt.get_cmap("tab20b")
     colors = [[np.random.randint(0, 255) for _ in range(3)] for _ in range(len(classes))]
-    
+
     # Real-time detection
     while cap.isOpened():
         ret, frame = cap.read()
-        # Preprocessing especially size
-        frame = cv.resize(frame, (opt.img_size, opt.img_size))
-        input_frame = trfs(frame)
-        input_frame = input_frame.unsqueeze(0)
-        input_frame = Variable(input_frame.type(Tensor)) 
+        if ret:
+            # Preprocessing especially size
+            frame = cv.resize(frame, (opt.img_size, opt.img_size))
+            input_frame = trfs(frame)
+            input_frame = input_frame.unsqueeze(0)
+            input_frame = Variable(input_frame.type(Tensor)) 
 
-        # Predict detections
-        with torch.no_grad():
-            detections = model(input_frame)
-            detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)[0] # Detections: x1, y1, x2, y2, conf, cls_conf, cls_pred
-        # Draw boxed
-        if detections is not None:
-            for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-                if opt.conf:
-                    label = f'{classes[int(cls_pred)]} {round(float(cls_conf), 2)}'
-                else:
-                    label = f'{classes[int(cls_pred)]}'
-                lt = min(2, round(0.05 * (-x1.numpy() + x2.numpy())))
-                cv.rectangle(frame, # target image
-                            (x1, y1), # one point of rectengle
-                            (x2, y2), # diagonal direction of the above
-                            colors[int(cls_pred)], # color
-                            1, # thickness
-                            cv.LINE_AA
-                            )
-                cv.putText(frame, # target images
-                            label , # str
-                            (x1, y1+lt*4), # location; (x1, y1) would not work
-                            cv.FONT_HERSHEY_SIMPLEX, # font
-                            lt/4, # font size
-                            [255, 255, 255], # color
-                            1, # thickness
-                            lineType=cv.LINE_AA
-                            )
-        # show results
-        cv.imshow('cam', frame) # window-name, frame
-        key = cv.waitKey(10)
+            # Predict detections
+            with torch.no_grad():
+                detections = model(input_frame)
+                detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)[0] # Detections: x1, y1, x2, y2, conf, cls_conf, cls_pred
+            # Draw boxed
+            if detections is not None:
+                for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
+                    if opt.conf:
+                        label = f'{classes[int(cls_pred)]} {round(float(cls_conf), 2)}'
+                    else:
+                        label = f'{classes[int(cls_pred)]}'
+                    lt = min(2, round(0.05 * (-x1.numpy() + x2.numpy())))
+                    cv.rectangle(frame, # target image
+                                (x1, y1), # one point of rectengle
+                                (x2, y2), # diagonal direction of the above
+                                colors[int(cls_pred)], # color
+                                1, # thickness
+                                cv.LINE_AA
+                                )
+                    cv.putText(frame, # target images
+                                label , # str
+                                (x1, y1+lt*4), # location; (x1, y1) would not work
+                                cv.FONT_HERSHEY_SIMPLEX, # font
+                                lt/4, # font size
+                                [255, 255, 255], # color
+                                1, # thickness
+                                lineType=cv.LINE_AA
+                                )
+            # show results
+            cv.imshow('cam', frame) # window-name, frame
+            key = cv.waitKey(1) & 0xFF
 
-        if key & 0xFF == 27: # esc
+            if key == 27: # esc
+                break
+            elif key == 32: # space
+                print('press nay key to resume')
+                cv.waitKey() # pause
+            elif key == ord('s'):
+                fname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.jpg'
+                fname = opt.output_dir + fname
+                cv.imwrite(fname, frame)
+            elif key == ord('r') and not record:
+                print('recording...')
+                vname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.avi'
+                vname = opt.output_dir + vname
+                writer = cv.VideoWriter(vname, fourcc, int(n_frame), (opt.img_size, opt.img_size)) # can change video size option
+                record = True
+            elif key == ord('t') and record:
+                print('finish recording...')
+                writer.release()
+                record = False
+            
+            if record:
+                writer.write(frame)
+        else:
+            if record:
+                writer.release()
             break
-        elif key == 32: # space
-            print('press nay key to resume')
-            cv.waitKey() # pause
-        elif key == ord('s'):
-            fname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.jpg'
-            fname = opt.output_dir + fname
-            cv.imwrite(fname, frame)
-        elif key == ord('r') and not record:
-            print('recording...')
-            vname = datetime.datetime.now().strftime('%m%d%H%M%S') + '.avi'
-            vname = opt.output_dir + vname
-            writer = cv.VideoWriter(vname, fourcc, int(n_frame), (opt.img_size, opt.img_size)) # can change video size option
-            record = True
-        elif key == ord('t') and record:
-            print('finish recording...')
-            writer.release()
-            record = False
-        
-        if record:
-            writer.write(frame)
-
     cap.release()
     cv.destroyAllWindows()
